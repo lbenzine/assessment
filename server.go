@@ -9,7 +9,6 @@ import (
 	"github.com/labstack/echo/middleware"
 
 	"github.com/lib/pq"
-	_ "github.com/lib/pq"
 )
 
 type Expense struct {
