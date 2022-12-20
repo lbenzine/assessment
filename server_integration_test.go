@@ -75,6 +75,18 @@ func TestUpdateExpenseByID(t *testing.T) {
 	assert.Equal(t, []string{"beverage"}, latest.Tags)
 }
 
+func TestGetAllExpense(t *testing.T) {
+	seedExpense(t)
+	var expense []Expense
+
+	res := request(http.MethodGet, uri("expenses"), nil)
+	err := res.Decode(&expense)
+
+	assert.Nil(t, err)
+	assert.EqualValues(t, http.StatusOK, res.StatusCode)
+	assert.Greater(t, len(expense), 0)
+}
+
 func seedExpense(t *testing.T) Expense {
 	var c Expense
 	body := bytes.NewBufferString(`{
