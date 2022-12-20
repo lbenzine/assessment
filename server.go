@@ -3,11 +3,12 @@ package main
 import (
 	"database/sql"
 	"log"
+	"net/http"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 )
 
 type Expense struct {
@@ -16,6 +17,26 @@ type Expense struct {
 	Amount float64  `json:"amount"`
 	Note   string   `json:"note"`
 	Tags   []string `json:"tags"`
+}
+
+type Err struct {
+	Message string `json:"message"`
+}
+
+func createExpenseHandler(c echo.Context) error {
+	e := Expense{}
+	err := c.Bind(&e)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, Err{Message: err.Error()})
+	}
+
+	row := db.QueryRow("INSERT INTO expenses (title, amount, note, tags) values ($1, $2, $3, $4)  RETURNING id", e.Title, e.Amount, e.Note, pq.Array(e.Tags))
+	err = row.Scan(&e.ID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, Err{Message: err.Error()})
+	}
+
+	return c.JSON(http.StatusCreated, e)
 }
 
 var db *sql.DB
@@ -46,7 +67,7 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	// e.POST("/expenses", createUserHandler)
+	e.POST("/expenses", createExpenseHandler)
 	// e.GET("/expenses", getUsersHandler)
 
 	log.Fatal(e.Start(":2565"))
