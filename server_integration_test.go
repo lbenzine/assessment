@@ -36,7 +36,7 @@ func TestCreateExpense(t *testing.T) {
 	assert.Equal(t, []string{"food", "beverage"}, e.Tags)
 }
 
-func TestGetUserByID(t *testing.T) {
+func TestGetExpenseByID(t *testing.T) {
 	c := seedExpense(t)
 
 	var latest Expense
@@ -50,6 +50,29 @@ func TestGetUserByID(t *testing.T) {
 	assert.NotEmpty(t, latest.Amount)
 	assert.NotEmpty(t, latest.Note)
 	assert.NotEmpty(t, latest.Tags)
+}
+
+func TestUpdateExpenseByID(t *testing.T) {
+	c := seedExpense(t)
+
+	var latest Expense
+	body := bytes.NewBufferString(`{
+		"title": "apple smoothie",
+		"amount": 89,
+		"note": "no discount",
+		"tags": ["beverage"]
+	}`)
+
+	res := request(http.MethodPut, uri("expenses", strconv.Itoa(c.ID)), body)
+	err := res.Decode(&latest)
+
+	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, res.StatusCode)
+	assert.Equal(t, c.ID, latest.ID)
+	assert.Equal(t, "apple smoothie", latest.Title)
+	assert.Equal(t, float64(89), latest.Amount)
+	assert.Equal(t, "no discount", latest.Note)
+	assert.Equal(t, []string{"beverage"}, latest.Tags)
 }
 
 func seedExpense(t *testing.T) Expense {
