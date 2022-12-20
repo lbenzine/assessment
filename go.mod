@@ -2,7 +2,10 @@ module github.com/lbenzine/assessment
 
 go 1.19
 
-require github.com/labstack/echo v3.3.10+incompatible
+require (
+	github.com/labstack/echo v3.3.10+incompatible
+	github.com/lib/pq v1.10.7
+)
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
