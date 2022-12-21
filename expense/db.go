@@ -1,23 +1,18 @@
-package main
+package expense
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
-
-	_ "github.com/lib/pq"
 )
 
-func main() {
-	url := "postgres://tgrpfnnv:GCDxLHXUGuHxWXtQzc14KwQS4jCSnUgK@tiny.db.elephantsql.com/tgrpfnnv"
-	db, err := sql.Open("postgres", url)
+var db *sql.DB
 
+func InitDB() {
+	var err error
+	db, err = sql.Open("postgres", "postgres://tgrpfnnv:GCDxLHXUGuHxWXtQzc14KwQS4jCSnUgK@tiny.db.elephantsql.com/tgrpfnnv")
 	if err != nil {
 		log.Fatal("Connect to database error", err)
 	}
-	defer db.Close()
-
-	log.Println("Connect to database success")
 
 	createTb := `CREATE TABLE IF NOT EXISTS expenses ( 
 		id SERIAL PRIMARY KEY, 
@@ -31,6 +26,4 @@ func main() {
 	if err != nil {
 		log.Fatal("can't create table", err)
 	}
-
-	fmt.Println("create table success")
 }
