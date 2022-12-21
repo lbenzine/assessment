@@ -3,13 +3,14 @@ package expense
 import (
 	"database/sql"
 	"log"
+	"os"
 )
 
 var db *sql.DB
 
 func InitDB() {
 	var err error
-	db, err = sql.Open("postgres", "postgres://tgrpfnnv:GCDxLHXUGuHxWXtQzc14KwQS4jCSnUgK@tiny.db.elephantsql.com/tgrpfnnv")
+	db, err = sql.Open("postgres", os.Getenv("DATABASE_URL")) //"postgres://tgrpfnnv:GCDxLHXUGuHxWXtQzc14KwQS4jCSnUgK@tiny.db.elephantsql.com/tgrpfnnv"
 	if err != nil {
 		log.Fatal("Connect to database error", err)
 	}
