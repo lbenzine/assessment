@@ -1,0 +1,50 @@
+version: '3.2'
+
+networks:
+  integration-test-example:
+
+services:
+  it_tests:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.test
+    volumes:
+      - $PWD:/go/src/target
+    depends_on:
+      - db
+      - api
+    networks:
+      - integration-test-example
+  db:
+    image: postgres:12.12
+    ports:
+      - "5432:5432"
+    expose:
+      - 5432
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: go-example-db
+    restart: on-failure
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d/
+    networks:
+      - integration-test-example
+    healthcheck:
+      test: "exit 0"
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - PORT=:2565
+      - DATABASE_URL=postgresql://root:root@db/go-example-db?sslmode=disable #postgres://tgrpfnnv:GCDxLHXUGuHxWXtQzc14KwQS4jCSnUgK@tiny.db.elephantsql.com/tgrpfnnv 
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - integration-test-example
+    # links:
+    #   - db
+    # expose:
+    #   - 2565

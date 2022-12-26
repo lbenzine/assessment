@@ -82,9 +82,15 @@ func TestGetAllExpense(t *testing.T) {
 	res := request(http.MethodGet, uri("expenses"), nil)
 	err := res.Decode(&expense)
 
-	assert.Nil(t, err)
-	assert.EqualValues(t, http.StatusOK, res.StatusCode)
-	assert.Greater(t, len(expense), 0)
+	assert.Contains(t, []int{http.StatusOK, http.StatusUnauthorized}, res.StatusCode)
+	if res.StatusCode == http.StatusOK {
+		assert.Nil(t, err)
+		assert.Greater(t, len(expense), 0)
+	} else if res.StatusCode == http.StatusUnauthorized {
+		assert.NotNil(t, err)
+		assert.Equal(t, len(expense), 0)
+	}
+
 }
 
 func seedExpense(t *testing.T) Expense {
@@ -118,6 +124,7 @@ func request(method, url string, body io.Reader) *Response {
 	req.Header.Add("Content-Type", "application/json")
 	client := http.Client{}
 	res, err := client.Do(req)
+
 	return &Response{res, err}
 }
 
